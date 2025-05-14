@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Word Learning App</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive;
+      text-align: center;
+      padding: 20px;
+      background-color: #fef6e4;
+      margin: 0;
+    }
+    h1 {
+      color: #ff6b6b;
+      font-size: 40px;
+    }
+    .word-box {
+      background-color: #fcd34d;
+      border-radius: 20px;
+      padding: 40px;
+      margin: 30px auto;
+      width: 80%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .word {
+      font-size: 36px;
+      color: #2b2d42;
+      font-weight: bold;
+    }
+    .translation {
+      font-size: 22px;
+      color: #444;
+      margin-top: 15px;
+    }
+    .buttons {
+      margin-top: 20px;
+    }
+    button {
+      font-size: 18px;
+      margin: 5px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .btn-nav {
+      background-color: #4ade80;
+      color: white;
+    }
+    .btn-nav:hover {
+      background-color: #22c55e;
+    }
+    .btn-pronounce {
+      background-color: #60a5fa;
+      color: white;
+    }
+    .btn-pronounce:hover {
+      background-color: #3b82f6;
+    }
+    .categories {
+      margin-top: 40px;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 20px;
+    }
+    .categories button {
+      background-color: #fb923c;
+      display: inline-block;
+      margin: 0 10px;
+    }
+    .categories button:hover {
+      background-color: #f97316;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎉 Learn Words!</h1>
+
+  <div class="word-box">
+    <div class="word" id="word"></div>
+    <div class="translation" id="translation"></div>
+  </div>
+
+  <div class="buttons">
+    <button class="btn-nav" onclick="prevWord()">⬅️ Prev</button>
+    <button class="btn-pronounce" onclick="pronounceWord()">🔊 Pronounce</button>
+    <button class="btn-nav" onclick="nextWord()">Next ➡️</button>
+  </div>
+
+  <div class="categories" id="category-buttons">
+    <!-- Category buttons will be generated here -->
+  </div>
+
+  <script>
+    let words = [];
+    let currentIndex = 0;
+    let currentCategory = "fruits";
+
+    const categories = ["fruits", "animals"];
+
+    function loadWords(category) {
+      currentCategory = category;
+      fetch(`${category}.json`)
+        .then(response => response.json())
+        .then(data => {
+          words = data;
+          currentIndex = 0;
+          showWord();
+        });
+    }
+
+    function showWord() {
+      const wordData = words[currentIndex];
+      document.getElementById('word').textContent = wordData.word;
+      document.getElementById('translation').textContent = wordData.translation;
+    }
+
+    function nextWord() {
+      if (currentIndex < words.length - 1) {
+        currentIndex++;
+        showWord();
+      }
+    }
+
+    function prevWord() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showWord();
+      }
+    }
+
+    function pronounceWord() {
+      const word = words[currentIndex].word;
+      const utterance = new SpeechSynthesisUtterance(word);
+      speechSynthesis.speak(utterance);
+    }
+
+    function initCategories() {
+      const container = document.getElementById("category-buttons");
+      categories.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.textContent = cat[0].toUpperCase() + cat.slice(1);
+        btn.onclick = () => loadWords(cat);
+        container.appendChild(btn);
+      });
+    }
+
+    window.onload = () => {
+      initCategories();
+      loadWords(currentCategory);
+    };
+  </script>
+
+</body>
+</html>
